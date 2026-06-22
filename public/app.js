@@ -5,6 +5,8 @@ const confirmSection = document.getElementById("confirm-section");
 const fieldsEl = document.getElementById("selected-fields");
 const jobsEl = document.getElementById("jobs");
 let currentState = null;
+let pendingSelectionKey = "";
+let pendingFieldNames = [];
 
 selectForm.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -23,6 +25,11 @@ jobForm.addEventListener("submit", async (event) => {
     url: currentState.pendingSelection.url,
     name: document.getElementById("name").value.trim(),
     frequency: document.getElementById("frequency").value,
+    fields: currentState.pendingSelection.fields.map((field, index) => ({
+      selector: field.selector,
+      text: field.text,
+      name: (pendingFieldNames[index] || field.name || `Value ${index + 1}`).trim(),
+    })),
   };
   await postJson("/api/jobs", body);
   confirmSection.hidden = true;
@@ -51,23 +58,34 @@ function renderStatus(state) {
 function renderPending(selection) {
   if (!selection) {
     confirmSection.hidden = true;
+    pendingSelectionKey = "";
+    pendingFieldNames = [];
     return;
   }
 
   confirmSection.hidden = false;
   document.getElementById("url").value = selection.url;
+  const selectionKey = `${selection.url}|${selection.confirmedAt || ""}|${selection.fields.length}`;
+  const isNewSelection = selectionKey !== pendingSelectionKey;
+  if (isNewSelection) {
+    pendingSelectionKey = selectionKey;
+    pendingFieldNames = selection.fields.map((field, index) => field.name || `Value ${index + 1}`);
+  }
+  if (!isNewSelection) return;
+
   fieldsEl.innerHTML = "";
   selection.fields.forEach((field, index) => {
     const row = document.createElement("div");
     row.className = "field";
+    const fieldName = pendingFieldNames[index] || field.name || `Value ${index + 1}`;
     row.innerHTML = `
       <label>Field ${index + 1} name</label>
-      <input value="${escapeHtml(field.name || `Value ${index + 1}`)}" data-field-name="${index}">
+      <input value="${escapeHtml(fieldName)}" data-field-name="${index}">
       <div class="muted">${escapeHtml(field.text || "")}</div>
       <div class="muted"><code>${escapeHtml(field.selector)}</code></div>
     `;
     row.querySelector("input").addEventListener("input", (event) => {
-      selection.fields[index].name = event.target.value;
+      pendingFieldNames[index] = event.target.value;
     });
     fieldsEl.appendChild(row);
   });
