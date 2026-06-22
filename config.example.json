@@ -1,0 +1,4 @@
+{
+  "googleSheetWebAppUrl": "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec",
+  "sharedSecret": "replace-with-your-shared-secret"
+}
