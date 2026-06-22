@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Visual Data Collector</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f7f9;
+        --panel: #ffffff;
+        --text: #172033;
+        --muted: #647084;
+        --line: #d8dee8;
+        --accent: #0f766e;
+        --danger: #b42318;
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      main {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+
+      h1 {
+        margin: 0 0 20px;
+        font-size: 24px;
+      }
+
+      h2 {
+        margin: 0 0 12px;
+        font-size: 17px;
+      }
+
+      section {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+
+      label {
+        display: block;
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+
+      input, select {
+        width: 100%;
+        height: 38px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 8px 10px;
+        font-size: 14px;
+      }
+
+      button {
+        height: 38px;
+        border: 0;
+        border-radius: 6px;
+        background: var(--accent);
+        color: white;
+        padding: 0 14px;
+        cursor: pointer;
+      }
+
+      button.secondary {
+        background: #334155;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 180px;
+        gap: 12px;
+        align-items: end;
+      }
+
+      .status {
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      .error {
+        color: var(--danger);
+      }
+
+      .fields, .jobs {
+        display: grid;
+        gap: 8px;
+      }
+
+      .field, .job {
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 10px;
+        display: grid;
+        gap: 6px;
+      }
+
+      .job-header {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .muted {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      code {
+        background: #eef2f7;
+        padding: 2px 4px;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Visual Data Collector</h1>
+
+      <section>
+        <h2>1. Open URL And Select Values</h2>
+        <form id="select-form" class="grid">
+          <div>
+            <label for="url">URL</label>
+            <input id="url" name="url" placeholder="https://example.com/product" required>
+          </div>
+          <button type="submit">Open Browser</button>
+        </form>
+        <p id="select-status" class="status"></p>
+      </section>
+
+      <section id="confirm-section" hidden>
+        <h2>2. Confirm Schedule</h2>
+        <div id="selected-fields" class="fields"></div>
+        <form id="job-form" class="grid" style="margin-top:12px">
+          <div>
+            <label for="name">Job name</label>
+            <input id="name" name="name" placeholder="Competitor price check">
+          </div>
+          <div>
+            <label for="frequency">Frequency</label>
+            <select id="frequency" name="frequency">
+              <option value="daily">Daily</option>
+              <option value="weekly" selected>Weekly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+          </div>
+          <button type="submit">Confirm And Run Once</button>
+        </form>
+      </section>
+
+      <section>
+        <h2>Active Jobs</h2>
+        <div id="jobs" class="jobs"></div>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
