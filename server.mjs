@@ -73,6 +73,7 @@ async function createJob(req, res) {
 
   const frequency = String(body.frequency || "").toLowerCase();
   if (!["daily", "weekly", "monthly"].includes(frequency)) return sendJson(res, { error: "Frequency must be daily, weekly, or monthly." }, 400);
+  const submittedFields = Array.isArray(body.fields) ? body.fields : [];
 
   const job = {
     id: `job_${Date.now()}`,
@@ -80,11 +81,14 @@ async function createJob(req, res) {
     url: selected.url,
     frequency,
     storageState: selected.storageState || null,
-    fields: selected.fields.map((field, index) => ({
-      name: field.name || `Value ${index + 1}`,
-      selector: field.selector,
-      sample: field.text,
-    })),
+    fields: selected.fields.map((field, index) => {
+      const submitted = submittedFields[index] || {};
+      return {
+        name: cleanFieldName(submitted.name || field.name || `Value ${index + 1}`, index),
+        selector: field.selector,
+        sample: field.text,
+      };
+    }),
     createdAt: new Date().toISOString(),
     lastRunAt: "",
     nextRunAt: new Date().toISOString(),
@@ -97,6 +101,11 @@ async function createJob(req, res) {
   state.pendingSelection = null;
   runJob(job.id).catch(console.error);
   sendJson(res, { ok: true, job });
+}
+
+function cleanFieldName(value, index) {
+  const name = String(value || "").replace(/\s+/g, " ").trim();
+  return name || `Value ${index + 1}`;
 }
 
 async function runJobNow(jobId, res) {
