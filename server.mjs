@@ -23,8 +23,21 @@ const state = {
 };
 
 function loadPlaywright() {
-  const localPlaywright = path.join(__dirname, "..", "node_modules", ".pnpm", "playwright@1.60.0", "node_modules", "playwright");
-  if (existsSync(localPlaywright)) return require(localPlaywright);
+  const candidates = [
+    path.join(__dirname, "node_modules", "playwright"),
+    path.join(__dirname, "..", "node_modules", ".pnpm", "playwright@1.60.0", "node_modules", "playwright"),
+  ];
+
+  for (const candidate of candidates) {
+    const packageRoot = path.resolve(candidate, "..");
+    const hasPlaywrightCore =
+      existsSync(path.join(packageRoot, "playwright-core")) ||
+      existsSync(path.join(packageRoot, ".pnpm", "playwright-core@1.60.0", "node_modules", "playwright-core"));
+    if (existsSync(candidate) && hasPlaywrightCore) {
+      return require(candidate);
+    }
+  }
+
   return require("playwright");
 }
 
